@@ -1,0 +1,238 @@
+Since **Nobara is Fedora-based**, Git is very easy to install. The commands below are the current recommended methods for Fedora/Nobara systems. ([GitHub][1])
+
+## 1. Install Git
+
+Open a terminal and run:
+
+```bash
+sudo dnf install git -y
+```
+
+Or install the full Git package set:
+
+```bash
+sudo dnf install git-all -y
+```
+
+Verify it installed correctly:
+
+```bash
+git --version
+```
+
+You should see something similar to:
+
+```bash
+git version 2.x.x
+```
+
+([GitHub][1])
+
+---
+
+## 2. Configure Git
+
+Replace the information below with your GitHub username and email:
+
+```bash
+git config --global user.name "YourGitHubName"
+git config --global user.email "youremail@example.com"
+```
+
+Check your settings:
+
+```bash
+git config --list
+```
+
+([GitHub Docs][2])
+
+---
+
+## 3. Install GitHub CLI (Optional but Recommended)
+
+This makes working with GitHub much easier:
+
+```bash
+sudo dnf install gh -y
+```
+
+Verify:
+
+```bash
+gh --version
+```
+
+Login:
+
+```bash
+gh auth login
+```
+
+Follow the prompts.
+
+([GitHub Docs][2])
+
+---
+
+## 4. Create an SSH Key (Recommended)
+
+Generate a key:
+
+```bash
+ssh-keygen -t ed25519 -C "youremail@example.com"
+```
+
+Press Enter through the prompts.
+
+Start the SSH agent:
+
+```bash
+eval "$(ssh-agent -s)"
+```
+
+Add your key:
+
+```bash
+ssh-add ~/.ssh/id_ed25519
+```
+
+Display your public key:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy the output.
+
+---
+
+## 5. Add the SSH Key to GitHub
+
+Go to:
+
+[GitHub SSH Settings](https://github.com/settings/keys?utm_source=chatgpt.com)
+
+Click **New SSH Key** and paste the key.
+
+Test:
+
+```bash
+ssh -T git@github.com
+```
+
+Expected:
+
+```bash
+Hi username! You've successfully authenticated...
+```
+
+([GitHub Docs][2])
+
+---
+
+## 6. Clone GitHub Repositories
+
+Example:
+
+```bash
+git clone https://github.com/OWNER/REPOSITORY.git
+```
+
+or with SSH:
+
+```bash
+git clone git@github.com:OWNER/REPOSITORY.git
+```
+
+Example:
+
+```bash
+git clone https://github.com/ValveSoftware/Proton.git
+```
+
+This creates a folder containing the repository files.
+
+---
+
+## 7. Basic Git Commands You'll Use
+
+Move into a repository:
+
+```bash
+cd REPOSITORY
+```
+
+Check status:
+
+```bash
+git status
+```
+
+Download latest changes:
+
+```bash
+git pull
+```
+
+Upload changes:
+
+```bash
+git add .
+git commit -m "Updated files"
+git push
+```
+
+---
+
+## 8. Download GitHub Projects Without Git
+
+If you just want the files:
+
+```bash
+wget https://github.com/OWNER/REPOSITORY/archive/refs/heads/main.zip
+```
+
+Or use GitHub's **Code → Download ZIP** button.
+
+---
+
+## 9. Nobara-Specific Notes
+
+Nobara uses **DNF** as its package manager, just like Fedora. For installing packages, use:
+
+```bash
+sudo dnf install PACKAGE_NAME
+```
+
+For system updates, Nobara recommends using:
+
+```bash
+nobara-sync cli
+```
+
+instead of a generic Fedora update command. ([Reddit][3])
+
+---
+
+## Complete Copy-Paste Setup
+
+```bash
+sudo dnf install git git-all gh -y
+
+git config --global user.name "YourGitHubName"
+git config --global user.email "youremail@example.com"
+
+ssh-keygen -t ed25519 -C "youremail@example.com"
+
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+cat ~/.ssh/id_ed25519.pub
+```
+
+After copying the displayed key into GitHub, you'll be able to clone, download, pull, and push GitHub repositories from your Nobara system. If you're planning to use GitHub for **Monado**, **OpenXR**, or your **Rift S on Nobara with a GTX 1660**, I can also give you the exact Git commands to download and build those projects from source.
+
+[1]: https://github.com/git-guides/install-git?utm_source=chatgpt.com "Git Guides - install git · GitHub"
+[2]: https://docs.github.com/linux-git-installation?utm_source=chatgpt.com "Set up Git - GitHub Docs"
+[3]: https://www.reddit.com/r/NobaraProject/comments/1czrgtz?utm_source=chatgpt.com "How to Update Correctly"
