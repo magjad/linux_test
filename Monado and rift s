@@ -1,0 +1,215 @@
+With a **GTX 1660 + Oculus Rift S + Nobara**, I'd adjust the advice quite a bit.
+
+## Current Reality (2026)
+
+The biggest issue is **not Monado itself**.
+
+The biggest issue is:
+
+* Rift S was never officially supported on Linux.
+* Monado has Rift S support, but it's still considered experimental compared to headsets like the Valve Index.
+* NVIDIA cards (including the GTX 1660) can work, but are generally more troublesome than AMD for Linux VR.
+* The Rift S requires both USB and DisplayPort to initialize correctly.
+
+## What You Actually Need
+
+### 1. Update Nobara
+
+```bash
+nobara-sync cli
+reboot
+```
+
+---
+
+### 2. Install NVIDIA Drivers
+
+Check:
+
+```bash
+nvidia-smi
+```
+
+You should see your GTX 1660 listed.
+
+If that command fails, fix the NVIDIA driver before touching Monado.
+
+---
+
+### 3. Verify Vulkan
+
+```bash
+vulkaninfo --summary
+```
+
+You should see:
+
+* NVIDIA GTX 1660
+* Vulkan API version
+* No errors
+
+If Vulkan doesn't work, Monado won't work.
+
+---
+
+### 4. Install Monado and OpenXR
+
+```bash
+sudo dnf install monado openxr-loader xr-hardware
+```
+
+Verify:
+
+```bash
+rpm -q monado openxr-loader xr-hardware
+```
+
+---
+
+### 5. Connect the Rift S
+
+Use:
+
+* Native DisplayPort on the GTX 1660
+* USB 3.x port directly on the motherboard
+
+Avoid:
+
+* USB hubs
+* DisplayPort adapters
+* Front-panel USB ports
+
+---
+
+### 6. Verify Linux Detects the Headset
+
+```bash
+lsusb
+```
+
+You should see Oculus/Meta devices.
+
+Then:
+
+```bash
+dmesg | grep -Ei "oculus|rift"
+```
+
+You want to see successful USB enumeration and no repeated disconnects.
+
+---
+
+### 7. Verify Monado Detects Hardware
+
+Try:
+
+```bash
+monado-cli probe
+```
+
+If unavailable:
+
+```bash
+monado-service
+```
+
+You should see Rift S-related messages.
+
+---
+
+### 8. Verify OpenXR
+
+```bash
+xrinfo
+```
+
+If that fails:
+
+```bash
+find /usr -name openxr_monado.json
+```
+
+Then:
+
+```bash
+export XR_RUNTIME_JSON=/usr/share/openxr/1/openxr_monado.json
+```
+
+(adjust path if different)
+
+---
+
+### 9. Launch Monado
+
+```bash
+XRT_DEBUG_GUI=1 monado-service
+```
+
+Watch for:
+
+* Rift S detected
+* Sensors initialized
+* Tracking started
+
+Any errors here are usually the key to fixing the setup.
+
+---
+
+## What You Do NOT Need Initially
+
+Don't start by:
+
+* Compiling Monado from source
+* Installing OpenHMD
+* Creating custom udev rules
+* Downloading random Rift S GitHub projects
+* Modifying kernel parameters
+
+Those are troubleshooting steps, not setup steps.
+
+---
+
+## Rift S-Specific Expectations
+
+As of 2026, expect:
+
+| Feature                      | Status        |
+| ---------------------------- | ------------- |
+| Display                      | Usually works |
+| Head tracking                | Usually works |
+| Positional tracking          | Can work      |
+| Touch controllers            | Experimental  |
+| SteamVR compatibility        | Mixed         |
+| Native Windows-level support | No            |
+
+---
+
+## The Commands I'd Run First on Your Machine
+
+```bash
+nvidia-smi
+```
+
+```bash
+vulkaninfo --summary
+```
+
+```bash
+sudo dnf install monado openxr-loader xr-hardware
+```
+
+```bash
+lsusb
+```
+
+```bash
+xrinfo
+```
+
+```bash
+XRT_DEBUG_GUI=1 monado-service
+```
+
+If all six of those succeed, you've reached the point where Monado can actually attempt to drive the Rift S.
+
+One thing I cannot honestly tell you is that the Rift S will definitely work end-to-end. Even with the correct setup, Rift S support under Monado is still not as mature as support for a Valve Index-class Linux-friendly headset. The GTX 1660 is capable enough; the headset support itself is the limiting factor.
