@@ -1,0 +1,146 @@
+Short version first: on Nobara + Rift S + SteamVR + VRChat, the “Monado + SteamVR” path is possible but still experimental and often breaks, and Rift S support is one of the least reliable parts of Monado right now. You can try it, but you should expect troubleshooting and possibly switching stacks (WiVRn is usually easier if you had a standalone headset; Rift S is trickier).
+
+Here’s the actual working approach people use in 2026 for your exact goal.
+
+1. Important reality check (Rift S + Monado)
+
+Monado can:
+
+Provide OpenXR runtime
+Sometimes detect Rift S headset + tracking
+
+But:
+
+Rift S tracking/controller support is partial/experimental
+SteamVR integration is not fully OpenVR-compatible out of the box
+VRChat (SteamVR/OpenVR game) usually needs a bridge layer
+
+So you typically need:
+
+Monado (OpenXR runtime)
+
+OpenComposite or xrizer (OpenVR → OpenXR translation)
+SteamVR (only as launcher / compositor bridge)
+2. Recommended stack on Nobara (what actually works most often)
+Core components
+
+Install:
+
+monado (OpenXR runtime)
+openxr-loader
+steam
+SteamVR
+opencomposite OR xrizer (important)
+
+On Fedora-based systems like Nobara:
+
+sudo dnf install monado openxr-loader
+
+SteamVR stays inside Steam.
+
+3. Set Monado as your OpenXR runtime
+
+Make sure Monado is active:
+
+mkdir -p ~/.config/openxr/1
+
+Check runtime file:
+
+cat /usr/share/openxr/1/openxr_monado.json
+
+Then link it:
+
+ln -sf /usr/share/openxr/1/openxr_monado.json ~/.config/openxr/1/active_runtime.json
+
+Verify:
+
+echo $XR_RUNTIME_JSON
+
+(Usually blank is fine if runtime file is correct)
+
+4. Enable SteamVR to see Monado driver
+
+Monado includes a SteamVR driver plugin.
+
+Find SteamVR path:
+
+~/.steam/steam/steamapps/common/SteamVR/
+
+Register Monado driver:
+
+./bin/vrpathreg.sh adddriver /usr/share/steamvr-monado
+
+Check:
+
+./bin/vrpathreg.sh
+
+You should see “External Drivers”.
+
+5. The critical missing piece: VRChat needs OpenVR translation
+
+VRChat is OpenVR-based under SteamVR, not native OpenXR.
+
+So you need ONE of these:
+
+Option A (recommended): OpenComposite
+
+Replaces SteamVR runtime layer.
+
+Install OpenComposite and set:
+
+export VR_OVERRIDE=/path/to/opencomposite
+
+or use its “global override” mode.
+
+Option B: xrizer (newer, more experimental)
+
+Works better with Monado but still unstable for Rift S.
+
+6. Start order (this matters a LOT)
+
+Always start in this order:
+
+Plug in Rift S (USB + DisplayPort)
+Start Monado:
+monado-service
+Confirm tracking:
+journalctl --user -u monado
+Start Steam
+Launch SteamVR
+Launch VRChat
+7. Common Rift S problems on Linux
+Problem: headset detected but black screen
+Usually compositor issue (Vulkan / DRM lease)
+Try KDE Plasma X11 session (not Wayland)
+Problem: SteamVR says “headset not found”
+Monado driver not registered correctly
+or OpenXR runtime not active
+Problem: controllers missing
+Rift S controller support in Monado is still incomplete in many builds
+8. What most people end up doing on Nobara
+
+Real-world outcome (important):
+
+Monado + Rift S → partial success (headset tracking only)
+SteamVR VRChat → unstable unless OpenComposite works perfectly
+Controllers → often broken or drifting
+9. If you want the most stable setup for VRChat on Linux
+
+Honestly:
+
+Rift S → best experience is still Windows
+On Linux:
+standalone headsets (Quest + WiVRn) work better
+Rift S is the hardest inside Monado ecosystem
+If you want, I can help you debug your exact setup
+
+Tell me:
+
+GPU (NVIDIA or AMD + model)
+Are you on Wayland or X11?
+What happens when you run monado-service
+Does SteamVR detect anything at all?
+
+And I can walk you through getting it to at least a “headset tracking working” state.
+
+
